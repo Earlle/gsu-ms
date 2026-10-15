@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>GSU Maintenance System</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1f2937">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #1f2937; overflow: hidden; }
+    #app { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+  </style>
+</head>
+<body>
+  <iframe id="app" title="GSU Maintenance System" allow="clipboard-write; fullscreen"></iframe>
+
+  <script>
+    // GSU-MS web app address (Apps Script deployment). Keep updating the SAME deployment
+    // (Manage deployments > Edit > New version) so this address never changes.
+    var APP_URL = "https://script.google.com/a/macros/buksu.edu.ph/s/AKfycbxGz197HtSAm49ezLv5FyzAUsPthiVJV65G6aEJe-gguybPSqC75q7qPad10Mcad8Vj5A/exec";
+
+    // Pass any query string through (e.g. ?page=pm) so deep links still work.
+    document.getElementById("app").src = APP_URL + (location.search || "");
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("service-worker.js").catch(function (e) {
+          console.warn("Service worker registration failed:", e);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
