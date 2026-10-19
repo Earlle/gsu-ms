@@ -20,14 +20,34 @@
     // GSU-MS web app address (Apps Script deployment). Keep updating the SAME deployment
     // (Manage deployments > Edit > New version) so this address never changes.
     var APP_URL = "https://script.google.com/a/macros/buksu.edu.ph/s/AKfycbxGz197HtSAm49ezLv5FyzAUsPthiVJV65G6aEJe-gguybPSqC75q7qPad10Mcad8Vj5A/exec";
+    var DEPLOYMENT_ID = (APP_URL.match(/\/s\/([^\/]+)\/exec/) || [])[1];
+
+    var frame = document.getElementById("app");
 
     // Pass any query string through (e.g. ?page=pm) so deep links still work.
-    document.getElementById("app").src = APP_URL + (location.search || "");
+    frame.src = APP_URL + (location.search || "");
+
+    // GSU-MS pages ask this wrapper to navigate (sidebar, tab bar, logout, notifications),
+    // so the app stays inside the installed window instead of jumping out to the browser.
+    window.addEventListener("message", function (e) {
+      if (!e.data || e.data.type !== "gsu-nav") return;
+
+      var senderHost = "";
+      try { senderHost = new URL(e.origin).hostname; } catch (x) { return; }
+      if (senderHost !== "script.google.com" && !/\.googleusercontent\.com$/.test(senderHost)) return;
+
+      var target;
+      try { target = new URL(String(e.data.url || "")); } catch (x) { return; }
+      if (target.hostname !== "script.google.com") return;
+      if (!DEPLOYMENT_ID || target.pathname.indexOf("/s/" + DEPLOYMENT_ID + "/exec") === -1) return;
+
+      frame.src = target.href;
+    });
 
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("service-worker.js").catch(function (e) {
-          console.warn("Service worker registration failed:", e);
+        navigator.serviceWorker.register("service-worker.js").catch(function (err) {
+          console.warn("Service worker registration failed:", err);
         });
       });
     }
